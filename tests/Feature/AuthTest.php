@@ -11,15 +11,75 @@ use Workbench\App\Models\User;
 uses(RefreshDatabase::class);
 
 test('login', function() {
-    $auth = User::factory()->create();
-
     $isUsingStateless = in_array(StartTemporarySessionMiddleware::class, config('fortify.middleware'));
+    $password = 'password';
+
+    $logoutRoute = route('logout');
+
+    if (!Features::enabled(Features::registration())) {
+        $auth = User::factory()->create();
+    } else {
+        $registerRoute = route('register.store');
+        $response = $this->postJson($registerRoute);
+        $response->assertUnprocessable();
+
+        $response = $this->postJson($registerRoute, $registerData = [
+            'name' => 'Test User',
+            'email' => 'user@email.test',
+            'password' => $password,
+            'password_confirmation' => $password,
+        ]);
+        $response->assertUnprocessable();
+        $response->assertJsonValidationErrors(['device_name']);
+
+        $response = $this->postJson($registerRoute, $registerData + ['device_name' => 'device']);
+        $response->assertCreated();
+        if ($isUsingStateless) {
+            $response->assertHeaderMissing('Set-Cookie');
+            $response->assertCookieMissing(config('session.cookie'));
+        }
+        $authToken = $response->headers->get('auth-token');
+        expect($authToken)->toBeString()->not->toBeEmpty();
+
+        $auth = User::orderByDesc('id')->first();
+        $this->assertEquals(1, $auth->tokens()->count());
+
+        $response = $this->postJson($logoutRoute);
+        $response->assertUnauthorized();
+
+        $this->withToken($authToken);
+
+        if (Features::enabled(Features::emailVerification())) {
+            $route = route('verification.send');
+            $response = $this->postJson($route);
+            $response->assertAccepted();
+
+            /** @var \Illuminate\Mail\MailManager $mailManager */
+            $mailManager = \Mail::getFacadeRoot();
+            /** @var \Illuminate\Mail\Mailer $arrayMailer */
+            $arrayMailer = $mailManager->mailer('array');
+            /** @var \Illuminate\Mail\Transport\ArrayTransport $arrayTransport */
+            $arrayTransport = $arrayMailer->getSymfonyTransport();
+            /** @var \Symfony\Component\Mailer\SentMessage $sentMessage */
+            $sentMessage = $arrayTransport->messages()[0];
+            /** @var \Symfony\Component\Mime\Email $mimeEmail */
+            $mimeEmail = $sentMessage->getOriginalMessage();
+            preg_match('~"http://localhost/email/verify/(.+?)/(.+?)(\?.+?)?"~', $mimeEmail->getHtmlBody(), $matches);
+            $verifyRoute = route('verification.verify', ['id' => html_entity_decode($matches[1]), 'hash' => html_entity_decode($matches[2])]) . html_entity_decode($matches[3] ?? '');
+            $response = $this->getJson($verifyRoute);
+            $response->assertNoContent();
+        }
+
+        $response = $this->postJson($logoutRoute);
+        $response->assertNoContent();
+
+        $this->assertEquals(0, $auth->tokens()->count());
+    }
 
     $loginRoute = route('login.store');
     $response = $this->postJson($loginRoute);
     $response->assertUnprocessable();
 
-    $password = 'password';
     $response = $this->postJson($loginRoute, [
         'email' => $auth->email,
         'password' => $password,
@@ -44,7 +104,6 @@ test('login', function() {
 
     $this->withToken($authToken);
 
-    $logoutRoute = route('logout');
     $response = $this->postJson($logoutRoute);
     $response->assertNoContent();
     $this->assertEquals(0, $auth->tokens()->count());

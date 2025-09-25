@@ -56,7 +56,7 @@ trait SetUpFortifySanctumTests
             && in_array(HasApiTokens::class, class_uses_recursive($user))) {
             $caller = debug_backtrace(DEBUG_BACKTRACE_IGNORE_ARGS, 2)[1];
             $name = "$caller[class]$caller[type]$caller[function]#$caller[line]";
-            /** Based on @see AuthController::authedResponse() */
+            /** {@see FortifySanctumStatefulSessionGuard::login()} */
             return $this->withToken($user->createToken($name)->plainTextToken);
         }
 
