@@ -15,7 +15,8 @@
     },
     "autoload": {
         "psr-4": {
-            "Everware\\LaravelFortifySanctum\\": "src/"
+            "Everware\\LaravelFortifySanctum\\": "src/",
+            "Everware\\LaravelFortifySanctum\\Tests\\Concerns\\": "tests/Concerns"
         }
     },
     "autoload-dev": {
