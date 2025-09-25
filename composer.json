@@ -2,6 +2,7 @@
     "name": "everware/laravel-fortify-sanctum",
     "description": "Automatically integrate Laravel Fortify with Laravel Sanctum so Fortify gives out Sanctum tokens on login while maintaining default Fortify functionality like two factor authentication. Also allows the use of 'api' middleware and makes login/sessions work without cookies (makes Fortify \"stateless\"-ish by creating temporary sessions).",
     "type": "library",
+    "readme": "README.md",
     "license": "MIT",
     "require": {
         "laravel/fortify": "^1.30",
