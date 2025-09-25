@@ -29,13 +29,14 @@ Set `config/fortify.php 'guard'` to:
 
 Finally, set `config/fortify.php 'middleware' to either:
 ```php
-use Everware\LaravelFortifySanctum\Http\Middleware\StartTemporarySessionMiddleware;
-use Everware\LaravelFortifySanctum\Http\Middleware\AddAuthTokenMiddleware;
-...
 // If the middleware (group) contains StartSession (like 'web'), only add our AddAuthTokenMiddleware.
 ['web', AddAuthTokenMiddleware::class],
 // Or, if the middleware (group) does not contain StartSession, add StartTemporarySessionMiddleware and AddAuthTokenMiddleware.
 ['api', StartTemporarySessionMiddleware::class, AddAuthTokenMiddleware::class],
+
+// Add the imports at the top of the file:
+use Everware\LaravelFortifySanctum\Http\Middleware\StartTemporarySessionMiddleware;
+use Everware\LaravelFortifySanctum\Http\Middleware\AddAuthTokenMiddleware;
 ```
 
 # Flowchart
