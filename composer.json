@@ -1,13 +1,12 @@
 {
     "name": "everware/laravel-fortify-sanctum",
-    "description": "Automatically integrate Laravel Fortify with Laravel Sanctum so Fortify gives out Sanctum tokens on login while maintaining default Fortify functionality like two factor authentication and password confirmation. Also allows the use of 'api' route middleware for Fortify routes and makes login / session work without cookies (makes Fortify \"stateless\"(-ish) by creating temporary sessions).",
+    "description": "Automatically integrate Laravel Fortify with Laravel Sanctum so Fortify gives out Sanctum tokens on login while maintaining default Fortify functionality like two factor authentication and password confirmation. Also allows the use of 'api' route middleware for Fortify routes and makes login / session work without cookies (makes Fortify \"stateless\"-ish by creating temporary sessions).",
     "type": "library",
     "license": "MIT",
-    "minimum-stability": "stable",
     "require": {
         "laravel/fortify": "^1.30",
         "laravel/sanctum": "^4.2",
-        "laravel/framework": "^12.31",
+        "laravel/framework": "^12.0",
         "illuminate/support": "*"
     },
     "autoload": {
@@ -17,7 +16,10 @@
     },
     "autoload-dev": {
         "psr-4": {
-            "Everware\\LaravelFortifySanctum\\": "tests/"
+            "Everware\\LaravelFortifySanctum\\Tests\\": "tests/",
+            "Workbench\\App\\": "workbench/app/",
+            "Workbench\\Database\\Factories\\": "workbench/database/factories/",
+            "Workbench\\Database\\Seeders\\": "workbench/database/seeders/"
         }
     },
     "authors": [
@@ -25,5 +27,28 @@
             "name": "Ken van der Eerden",
             "email": "support+composer@everware.nl"
         }
-    ]
+    ],
+    "require-dev": {
+        "orchestra/testbench": "^10.6",
+        "pestphp/pest": "^4.1"
+    },
+    "scripts": {
+        "post-autoload-dump": [
+            "@clear",
+            "@prepare"
+        ],
+        "clear": "@php vendor/bin/testbench package:purge-skeleton --ansi",
+        "prepare": "@php vendor/bin/testbench package:discover --ansi",
+        "build": "@php vendor/bin/testbench workbench:build --ansi",
+        "serve": [
+            "Composer\\Config::disableProcessTimeout",
+            "@build",
+            "@php vendor/bin/testbench serve --ansi"
+        ]
+    },
+    "config": {
+        "allow-plugins": {
+            "pestphp/pest-plugin": true
+        }
+    }
 }

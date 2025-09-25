@@ -1,6 +1,6 @@
 <?php
 
-namespace Everware\Providers;
+namespace Everware\LaravelFortifySanctum\Providers;
 
 use Illuminate\Support\ServiceProvider;
 
