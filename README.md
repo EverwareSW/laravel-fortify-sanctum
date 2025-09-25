@@ -39,6 +39,8 @@ use Everware\LaravelFortifySanctum\Http\Middleware\StartTemporarySessionMiddlewa
 use Everware\LaravelFortifySanctum\Http\Middleware\AddAuthTokenMiddleware;
 ```
 
+That's it!
+
 # Usage
 ## Added 'device_name' field
 First, Fortifys `/login` and `/two-factor-challenge` routes now also require a 'device_name' field, so make sure you add this to your post requests.  
