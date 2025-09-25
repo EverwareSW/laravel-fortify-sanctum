@@ -1,3 +1,5 @@
+[![Packagist Version](https://img.shields.io/packagist/v/everware/laravel-fortify-sanctum)](https://packagist.org/packages/everware/laravel-fortify-sanctum)
+
 # Laravel Fortify Sanctum integration
 This package solves a few things.
 1. Mainly, it makes Laravel Fortify give out Sanctum access tokens on login instead of session cookies, without the need to add or overwrite routes 
