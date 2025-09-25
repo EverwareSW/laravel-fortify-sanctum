@@ -66,8 +66,8 @@ Again, note the regeneration mentioned above.
 # Testing
 If you want your Feature tests to use Sanctum access tokens as auth
 (if that's what you use for your APIs auth, you should strive to have your tests be as similar to production as possible),
-you can add `use SetUpStatelessAuth` to your TestCase class or your feature test class(es) (for pest feature test files add `uses(SetUpStatelessAuth::class);`)  
-and add the import `use Everware\LaravelFortifySanctum\Tests\Concerns\SetUpStatelessAuth;` at the top of the file.  
+you can add `use SetUpFortifySanctumTests` to your TestCase class or your feature test class(es) (for pest feature test files add `uses(SetUpFortifySanctumTests::class);`)  
+and add the import `use Everware\LaravelFortifySanctum\Tests\Concerns\SetUpFortifySanctumTests;` at the top of the file.  
 Now, when you call `$this->actingAs($user)` in your tests, it will create and use Sanctum access tokens instead of session cookies*.  
 \* Laravel doesn't originally use actual cookies when running `actingAs()` but rather sets that user on a singleton Auth guard.
 

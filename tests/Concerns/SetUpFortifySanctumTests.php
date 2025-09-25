@@ -7,12 +7,12 @@ use Laravel\Sanctum\HasApiTokens;
 use Illuminate\Contracts\Http\Kernel;
 use Illuminate\Contracts\Auth\Authenticatable;
 
-trait SetUpStatelessAuth
+trait SetUpFortifySanctumTests
 {
     /** You can change this value in e.g. overridden @see TestCase::setUp() */
     public bool $useBearerToken = true;
 
-    public function setUpSetUpStatelessAuth()
+    public function setUpSetUpFortifySanctumTests()
     {
         if ($this->useBearerToken && trait_exists('Laravel\Sanctum\HasApiTokens')) {
             /**

@@ -6,7 +6,7 @@ use Orchestra\Testbench\Concerns\WithWorkbench;
 
 class TestCase extends \Orchestra\Testbench\TestCase
 {
-    use WithWorkbench, Concerns\SetUpStatelessAuth;
+    use WithWorkbench, Concerns\SetUpFortifySanctumTests;
 
     /** {@see PackageManifest::getManifest()}. */
     protected $enablesPackageDiscoveries = true;
