@@ -26,6 +26,13 @@
             "Workbench\\Database\\Seeders\\": "workbench/database/seeders/"
         }
     },
+    "extra": {
+        "laravel": {
+            "providers": [
+                "Everware\\LaravelFortifySanctum\\Providers\\FortifySanctumServiceProvider"
+            ]
+        }
+    },
     "scripts": {
         "post-autoload-dump": [
             "@clear",
