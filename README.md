@@ -39,6 +39,23 @@ use Everware\LaravelFortifySanctum\Http\Middleware\StartTemporarySessionMiddlewa
 use Everware\LaravelFortifySanctum\Http\Middleware\AddAuthTokenMiddleware;
 ```
 
+# Usage
+## Added 'device_name' field
+First, Fortifys `/login` and `/two-factor-challenge` routes now also require a 'device_name' field, so make sure you add this to your post requests.  
+We suggest something like: `{ email, password, device_name: window.navigator.userAgent }` in the browser or ```{ email, password, device_name: `${Device.deviceName} (${Device.modelName})` }``` using Expo Device (React Native).
+## Token response, two factor & temp session
+When you make a successful request to the Fortify login route, you will receive Fortifys original JSON response (e.g. `{two_factor: false}`).  
+If the users 2fa is disabled, thus successfully logging in, you will also receive an 'Auth-Token' HTTP header containing the newly generated Sanctum access token.  
+When making use of StartTemporarySessionMiddleware; if the users 2fa is enabled, you will receive a 'Temporary-Session-ID' HTTP header along with the response data `{two_factor: true}`.  
+You can then make a post request containing the users OTP 'code' and the new 'device_name' field (see above) to `/two-factor-challenge` with this session id value in a 'Temporary-Session-ID' HTTP header.  
+Note that the session id is regenerated on every request, so if for example the request to `/two-factor-challenge` fails in any way (e.g. 422 validation),
+that response will contain a new 'Temporary-Session-ID' HTTP header which you will need use in the next request (the old id is now obsolete).
+## Password confirmation
+When not making use of StartTemporarySessionMiddleware; the password confirmation functionality works as it does normally.  
+When making use of StartTemporarySessionMiddleware; the same 'Temporary-Session-ID' HTTP header functionality as described above 
+is used with requests to `/user/confirm-password` and the response header value should be passed to whatever consecutive password-confirm-required route.  
+Again, note the regeneration mentioned above.
+
 # Troubleshooting
 Make sure no Laravel Breeze or Starter Kit auth routes conflict with the Fortify routes.
 
