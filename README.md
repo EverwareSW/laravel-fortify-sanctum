@@ -9,7 +9,9 @@ This package solves a few things.
 \* The use of sessions is not completely removed because it is required for the two factor authentication and password confirmation actions within Fortify.
 
 # Setup
-Install the package
+First follow the [Laravel Fortify install guide](https://laravel.com/docs/12.x/fortify#installation)  
+and follow the [Laravel Sanctum install guide](https://laravel.com/docs/12.x/sanctum#installationn).  
+Then install the package:
 ```bash
 composer require everware/laravel-fortify-sanctum
 ```
@@ -61,8 +63,17 @@ Again, note the regeneration mentioned above.
 
 ## Bam! You're done, no custom routes required.
 
+# Testing
+If you want your Feature tests to use Sanctum access tokens as auth
+(if that's what you use for your APIs auth, you should strive to have your tests be as similar to production as possible),
+you can add `use SetUpStatelessAuth` to your TestCase class or your feature test class(es) (for pest feature test files add `uses(SetUpStatelessAuth::class);`)  
+and add the import `use Everware\LaravelFortifySanctum\Tests\Concerns\SetUpStatelessAuth;` at the top of the file.  
+Now, when you call `$this->actingAs($user)` in your tests, it will create and use Sanctum access tokens instead of session cookies*.  
+\* Laravel doesn't originally use actual cookies when running `actingAs()` but rather sets that user on a singleton Auth guard.
+
 # Troubleshooting
-Make sure no Laravel Breeze or Starter Kit auth routes conflict with the Fortify routes.
+Make sure no Laravel Breeze or Starter Kit auth routes conflict with the Fortify routes.  
+Make sure your User model implements trait `use HasApiTokens` (and `use TwoFactorAuthenticatable` if you want 2FA) as per [Sanctum's requirements](https://laravel.com/docs/12.x/sanctum#issuing-api-tokens). 
 
 # Flowchart
 How Laravel Fortify works in combination with Laravel Sanctum is quite complex, so I've created a model which visualizes the main parts of the combined architecture:  
