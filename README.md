@@ -10,7 +10,7 @@ This package solves a few things.
 
 # Setup
 First follow the [Laravel Fortify install guide](https://laravel.com/docs/12.x/fortify#installation)  
-and follow the [Laravel Sanctum install guide](https://laravel.com/docs/12.x/sanctum#installationn).  
+and follow the [Laravel Sanctum install guide](https://laravel.com/docs/12.x/sanctum#installation).  
 Then install the package:
 ```bash
 composer require everware/laravel-fortify-sanctum
