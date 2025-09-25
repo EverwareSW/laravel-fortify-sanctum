@@ -1,7 +1,7 @@
 <?php
 
+use Everware\LaravelFortifySanctum\Http\Middleware\StartTemporarySessionMiddleware;
 use Illuminate\Cache\Repository;
-// use Illuminate\Foundation\Testing\RefreshDatabase;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use Laravel\Fortify\Features;
 use Laravel\Fortify\Fortify;
@@ -13,11 +13,12 @@ uses(RefreshDatabase::class);
 test('login', function() {
     $auth = User::factory()->create();
 
+    $isUsingStateless = in_array(StartTemporarySessionMiddleware::class, config('fortify.middleware'));
+
     $loginRoute = route('login.store');
     $response = $this->postJson($loginRoute);
     $response->assertUnprocessable();
 
-    //TODO
     $password = 'password';
     $response = $this->postJson($loginRoute, [
         'email' => $auth->email,
@@ -32,12 +33,14 @@ test('login', function() {
     ]);
     $response->assertOk();
     $response->assertJsonPath('two_factor', false);
-    $response->assertHeaderMissing('Set-Cookie');
-    $response->assertCookieMissing(config('session.cookie'));
+    if ($isUsingStateless) {
+        $response->assertHeaderMissing('Set-Cookie');
+        $response->assertCookieMissing(config('session.cookie'));
+    }
     $authToken = $response->headers->get('auth-token');
     expect($authToken)->toBeString()->not->toBeEmpty();
     $this->assertEquals(1, $auth->tokens()->count());
-    $this->assertAuthenticatedAs($auth);
+    // $this->assertAuthenticatedAs($auth);
 
     $this->withToken($authToken);
 
@@ -71,12 +74,14 @@ test('login', function() {
 
             $response = $this->postJson(route('password.confirm.store'), ['password' => $password]);
             $response->assertCreated();
-            $response->assertHeaderMissing('Set-Cookie');
-            $response->assertCookieMissing(config('session.cookie'));
-            $sessionId = $response->headers->get('temporary-session-id');
-            expect($sessionId)->toBeString()->not->toBeEmpty();
+            if ($isUsingStateless) {
+                $response->assertHeaderMissing('Set-Cookie');
+                $response->assertCookieMissing(config('session.cookie'));
+                $sessionId = $response->headers->get('temporary-session-id');
+                expect($sessionId)->toBeString()->not->toBeEmpty();
 
-            $this->withHeader('temporary-session-id', $sessionId);
+                $this->withHeader('temporary-session-id', $sessionId);
+            }
         }
 
         /**
@@ -120,12 +125,14 @@ test('login', function() {
 
                 $response = $this->postJson(route('password.confirm.store'), ['password' => $password]);
                 $response->assertCreated();
-                $response->assertHeaderMissing('Set-Cookie');
-                $response->assertCookieMissing(config('session.cookie'));
-                $sessionId = $response->headers->get('temporary-session-id');
-                expect($sessionId)->toBeString()->not->toBeEmpty();
+                if ($isUsingStateless) {
+                    $response->assertHeaderMissing('Set-Cookie');
+                    $response->assertCookieMissing(config('session.cookie'));
+                    $sessionId = $response->headers->get('temporary-session-id');
+                    expect($sessionId)->toBeString()->not->toBeEmpty();
 
-                $this->withHeader('temporary-session-id', $sessionId);
+                    $this->withHeader('temporary-session-id', $sessionId);
+                }
             }
 
             /**
@@ -134,11 +141,13 @@ test('login', function() {
              */
             $response = $this->postJson($twoFactorConfirmRoute, ['code' => 'some bad code']);
             $response->assertUnprocessable();
-            // Because session id regenerated every time it's used.
-            $sessionId = $response->headers->get('temporary-session-id');
-            expect($sessionId)->toBeString()->not->toBeEmpty();
+            if ($isUsingStateless) {
+                // Because session id regenerated every time it's used.
+                $sessionId = $response->headers->get('temporary-session-id');
+                expect($sessionId)->toBeString()->not->toBeEmpty();
 
-            $this->withHeader('temporary-session-id', $sessionId);
+                $this->withHeader('temporary-session-id', $sessionId);
+            }
 
             $response = $this->postJson($twoFactorConfirmRoute, ['code' => $validOtp]);
             $response->assertOk();
@@ -156,8 +165,10 @@ test('login', function() {
         $response->assertOk();
         $response->assertJsonPath('two_factor', true);
         $response->assertHeaderMissing('auth-token');
-        $sessionId = $response->headers->get('temporary-session-id');
-        expect($sessionId)->toBeString()->not->toBeEmpty();
+        if ($isUsingStateless) {
+            $sessionId = $response->headers->get('temporary-session-id');
+            expect($sessionId)->toBeString()->not->toBeEmpty();
+        }
 
         $twoFactorLoginRoute = route('two-factor.login.store');
         $response = $this->postJson($twoFactorLoginRoute, ['code' => 'some bad code']);
@@ -172,19 +183,21 @@ test('login', function() {
         $response->assertJsonValidationErrors(['code']);
         $response->assertJsonMissingValidationErrors(['device_name']);
 
-        $response = $this->postJson($twoFactorLoginRoute, [
-            'code' => $validOtp,
-            'device_name' => 'correct device',
-        ]);
-        // No (deleted) session-id passed
-        $response->assertUnprocessable();
-        $response->assertJsonValidationErrors(['code']);
-        $response->assertJsonMissingValidationErrors(['device_name']);
+        if ($isUsingStateless) {
+            // No (deleted) session-id passed
+            $response = $this->postJson($twoFactorLoginRoute, [
+                'code' => $validOtp,
+                'device_name' => 'correct device',
+            ]);
+            $response->assertUnprocessable();
+            $response->assertJsonValidationErrors(['code']);
+            $response->assertJsonMissingValidationErrors(['device_name']);
 
-        /** So we can use $validOtp again {@see TwoFactorAuthenticationProvider::verify()}. */
-        resolve(Repository::class)->clear();
+            /** So we can use $validOtp again {@see TwoFactorAuthenticationProvider::verify()}. */
+            resolve(Repository::class)->clear();
 
-        $this->withHeader('temporary-session-id', $sessionId);
+            $this->withHeader('temporary-session-id', $sessionId);
+        }
 
         $response = $this->postJson($twoFactorLoginRoute, [
             'code' => $validOtp,

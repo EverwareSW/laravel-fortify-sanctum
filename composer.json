@@ -9,6 +9,10 @@
         "laravel/framework": "^12.0",
         "illuminate/support": "*"
     },
+    "require-dev": {
+        "orchestra/testbench": "^10.6",
+        "pestphp/pest": "^4.1"
+    },
     "autoload": {
         "psr-4": {
             "Everware\\LaravelFortifySanctum\\": "src/"
@@ -21,16 +25,6 @@
             "Workbench\\Database\\Factories\\": "workbench/database/factories/",
             "Workbench\\Database\\Seeders\\": "workbench/database/seeders/"
         }
-    },
-    "authors": [
-        {
-            "name": "Ken van der Eerden",
-            "email": "support+composer@everware.nl"
-        }
-    ],
-    "require-dev": {
-        "orchestra/testbench": "^10.6",
-        "pestphp/pest": "^4.1"
     },
     "scripts": {
         "post-autoload-dump": [
@@ -50,5 +44,11 @@
         "allow-plugins": {
             "pestphp/pest-plugin": true
         }
-    }
+    },
+    "authors": [
+        {
+            "name": "Ken van der Eerden",
+            "email": "support+laravel-fortify-sanctum@everware.nl"
+        }
+    ],
 }

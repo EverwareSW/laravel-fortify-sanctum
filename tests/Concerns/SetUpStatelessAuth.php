@@ -2,6 +2,7 @@
 
 namespace Everware\LaravelFortifySanctum\Tests\Concerns;
 
+use Everware\LaravelFortifySanctum\Http\Middleware\StartTemporarySessionMiddleware;
 use Laravel\Sanctum\HasApiTokens;
 use Illuminate\Contracts\Http\Kernel;
 use Illuminate\Contracts\Auth\Authenticatable;
@@ -27,12 +28,15 @@ trait SetUpStatelessAuth
             $this->app->make(Kernel::class)->prependMiddleware(new class {
                 /** {@see Pipeline::carry()} */
                 public function handle($request, $next) {
-                    app()->forgetInstance('session.store');
-                    app('session')->forgetDrivers();
+                    if (in_array(StartTemporarySessionMiddleware::class, config('fortify.middleware'))) {
+                        app()->forgetInstance('session.store');
+                        app('session')->forgetDrivers();
+                    }
                     auth()->forgetGuards();
                     return $next($request);
                 }
             });
+
             /** Can't use Kernel::pushMiddleware() because terminating middleware requires being class.
               * {@see Kernel::terminate()} into {@see Kernel::terminateMiddleware()} (!is_string()). */
             \App::terminating(function() { // \Event::listen(function(Terminating $e) {
