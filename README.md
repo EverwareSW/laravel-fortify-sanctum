@@ -39,9 +39,9 @@ use Everware\LaravelFortifySanctum\Http\Middleware\StartTemporarySessionMiddlewa
 use Everware\LaravelFortifySanctum\Http\Middleware\AddAuthTokenMiddleware;
 ```
 
+# Troubleshooting
+Make sure no Laravel Breeze or Starter Kit auth routes conflict with the Fortify routes.
+
 # Flowchart
 How Laravel Fortify works in combination with Laravel Sanctum is quite complex, so I've created a model which visualizes the main parts of the combined architecture:  
-See [Laravel Fortify and Sanctum architecture](README.laravel-architecture.md)
-
-
-Make sure no laravel breeze or starter kit auth routes.
+[Laravel Fortify and Sanctum architecture](README.laravel-architecture.md)
