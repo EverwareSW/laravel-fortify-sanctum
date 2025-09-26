@@ -15,12 +15,10 @@ class AddAuthTokenMiddleware
 
         /** {@see FortifySanctumStatefulSessionGuard::login()}. */
         if ($token = session()->pull('auth-token')) {
+            /** No need to call {@see Responsable::toResponse()} for {@see LoginResponse} and {@see TwoFactorLoginResponse},
+              * that's already done in {@see Pipeline::handleCarry()}. */
             $response->headers->set('Auth-Token', $token);
 
-            /** {@see LoginResponse} and {@see TwoFactorLoginResponse}. */
-            if ($response instanceof Responsable) {
-                $response = $response->toResponse($request);
-            }
             if ($response instanceof JsonResponse) {
                 $data = $response->getData(true);
                 $data === '' and $data = [];
