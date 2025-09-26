@@ -40,6 +40,7 @@ test('login', function() {
         }
         $authToken = $response->headers->get('auth-token');
         expect($authToken)->toBeString()->not->toBeEmpty();
+        $response->assertJsonPath('auth_token', $authToken);
 
         $auth = User::orderByDesc('id')->first();
         $this->assertEquals(1, $auth->tokens()->count());
@@ -99,8 +100,10 @@ test('login', function() {
     }
     $authToken = $response->headers->get('auth-token');
     expect($authToken)->toBeString()->not->toBeEmpty();
-    $this->assertEquals(1, $auth->tokens()->count());
+    $response->assertJsonPath('auth_token', $authToken);
     // $this->assertAuthenticatedAs($auth);
+
+    $this->assertEquals(1, $auth->tokens()->count());
 
     $this->withToken($authToken);
 
@@ -119,6 +122,7 @@ test('login', function() {
         $response->assertJsonPath('two_factor', false);
         $authToken = $response->headers->get('auth-token');
         expect($authToken)->toBeString()->not->toBeEmpty();
+        $response->assertJsonPath('auth_token', $authToken);
 
         $this->withToken($authToken);
 
@@ -170,6 +174,9 @@ test('login', function() {
             // 2FA still disabled because should be confirmed.
             $response->assertJsonPath('two_factor', false);
             $authToken = $response->headers->get('auth-token');
+            $response->assertJsonPath('auth_token', $authToken);
+
+            $this->assertEquals(1, $auth->tokens()->count());
 
             $this->withToken($authToken);
 
@@ -262,9 +269,11 @@ test('login', function() {
             'code' => $validOtp,
             'device_name' => 'correct device',
         ]);
-        $response->assertNoContent();
+        $response->assertOk(); // Changed from $response->assertNoContent();
         $authToken = $response->headers->get('auth-token');
         expect($authToken)->toBeString()->not->toBeEmpty();
+        $response->assertJsonPath('auth_token', $authToken);
+
         $this->assertEquals(1, $auth->tokens()->count());
     }
 });

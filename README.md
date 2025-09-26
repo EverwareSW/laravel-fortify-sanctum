@@ -23,7 +23,7 @@ Set `config/fortify.php 'guard'` to:
 'guard' => 'fortify-sanctum', // originally: 'web',
 ```
 
-Finally, set `config/fortify.php 'middleware' to either:
+Finally, set `config/fortify.php 'middleware'` to either:
 ```php
 // If the middleware (group) does not contain StartSession, add StartTemporarySessionMiddleware and AddAuthTokenMiddleware.
 ['api', StartTemporarySessionMiddleware::class, AddAuthTokenMiddleware::class],
@@ -51,10 +51,11 @@ If you use a custom user provider, overwrite our auth guard by adding this to `c
 First, Fortifys `/login` and `/two-factor-challenge` routes now also require a 'device_name' field, so make sure you add this to your post requests.  
 We suggest something like: `{ email, password, device_name: window.navigator.userAgent }` in the browser or ```{ email, password, device_name: `${Device.deviceName} (${Device.modelName})` }``` using Expo Device (React Native).
 ## Token response, two factor & temp session
-When you make a successful request to the Fortify login route, you will receive Fortifys original JSON response (e.g. `{two_factor: false}`).  
-If the users 2fa is disabled, thus successfully logging in, you will also receive an 'Auth-Token' HTTP header containing the newly generated Sanctum access token.  
+When you make a successful request to the Fortify login route, you will receive Fortifys original response.  
+If the users 2fa is disabled, thus successfully logging in, the newly generated Sanctum access token is added to an 'Auth-Token' HTTP response header.
+And if it's a JSON response, you will also receive the token in the response body; e.g. `{two_factor: false, auth_token: 'thetoken'}`.  
 When making use of **StartTemporarySessionMiddleware**; if the users 2fa is enabled, you will receive a 'Temporary-Session-ID' HTTP header (instead of Set-Cookie)
-along with the response data `{two_factor: true}`.  
+along with the response data `{two_factor: true}` (when expecting a JSON response).  
 You can then make a post request containing the users OTP 'code' and the new 'device_name' field (see above) to `/two-factor-challenge` with this session id value in a 'Temporary-Session-ID' HTTP header.  
 Note that the session id is regenerated on every request, so if for example the request to `/two-factor-challenge` fails in any way (e.g. 422 validation),
 that response will contain a new 'Temporary-Session-ID' HTTP header which you will need use in the next request (the old id is now obsolete).
