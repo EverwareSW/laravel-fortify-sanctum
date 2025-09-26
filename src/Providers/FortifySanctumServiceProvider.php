@@ -11,6 +11,13 @@ use Laravel\Fortify\Http\Requests\TwoFactorLoginRequest;
 
 class FortifySanctumServiceProvider extends ServiceProvider
 {
+    public function register()
+    {
+        $this->mergeConfigFrom(
+            __DIR__.'/../../config/auth.guards.php', 'auth.guards'
+        );
+    }
+
     public function boot(): void
     {
         // Set config('auth.guards.web.driver') to 'stateless'.

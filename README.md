@@ -18,14 +18,6 @@ Then install the package:
 composer require everware/laravel-fortify-sanctum
 ```
 
-Add this guard to `config/auth.php 'guards'`:
-```php
-'fortify-sanctum' => [
-    'driver' => 'fortify-sanctum',
-    'provider' => 'users',
-],
-```
-
 Set `config/fortify.php 'guard'` to:
 ```php
 'guard' => 'fortify-sanctum', // originally: 'web',
@@ -43,7 +35,16 @@ use Everware\LaravelFortifySanctum\Http\Middleware\StartTemporarySessionMiddlewa
 use Everware\LaravelFortifySanctum\Http\Middleware\AddAuthTokenMiddleware;
 ```
 
-That's it!
+**That's it!**
+
+## Custom user provider
+If you use a custom user provider, overwrite our auth guard by adding this to `config/auth.php 'guards'`:
+```php
+'fortify-sanctum' => [
+    'driver' => 'fortify-sanctum',
+    'provider' => 'users', // Your custom provider here.
+],
+```
 
 # Usage
 ## Added 'device_name' field
