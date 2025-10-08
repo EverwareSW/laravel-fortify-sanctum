@@ -13,7 +13,7 @@ use Illuminate\Contracts\Auth\Authenticatable as AuthenticatableContract;
 class FortifySanctumStatefulSessionGuard extends SessionGuard
 {
     public function __construct(
-        protected ?RequestGuard $sanctumGuard = null,
+        protected ?RequestGuard $sanctumGuard,
         string $name,
         array $config
     ) {

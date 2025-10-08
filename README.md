@@ -2,7 +2,7 @@
 
 # Laravel Fortify Sanctum integration
 This package solves a few things.
-1. Mainly, it makes Laravel Fortify give out Sanctum access tokens on login instead of session cookies, without the need to add or overwrite routes 
+1. Mainly, it allows you to make Laravel Fortify give out Sanctum access tokens on login instead of session cookies, without the need to add or overwrite routes
    and while keeping all Fortify functionality intact (like 2FA, password confirmation and registration).
 1. It optionally allows you to use different route middleware (groups) than 'web', so you can use the 'api' middleware group for example.
 1. It does so by removing the required use of cookies within Fortify, making the Fortify routes/authentication "stateless" (-ish)*.
