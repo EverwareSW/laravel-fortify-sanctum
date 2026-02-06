@@ -1,5 +1,6 @@
 <?php
 
+use Everware\LaravelFortifySanctum\Http\Middleware\AddAuthTokenMiddleware;
 use Everware\LaravelFortifySanctum\Http\Middleware\StartTemporarySessionMiddleware;
 use Illuminate\Cache\Repository;
 use Illuminate\Foundation\Testing\RefreshDatabase;
@@ -93,6 +94,7 @@ test('login', function() {
         'device_name' => 'loco device',
     ]);
     $response->assertOk();
+    $response->assertExactJsonStructure(['two_factor', 'auth_token']);
     $response->assertJsonPath('two_factor', false);
     if ($isUsingStateless) {
         $response->assertHeaderMissing('Set-Cookie');
@@ -117,12 +119,14 @@ test('login', function() {
     $response->assertUnauthorized();
 
     if (Features::enabled(Features::twoFactorAuthentication())) {
+        AddAuthTokenMiddleware::$addDataToResponse = fn(array $data): array => $data + ['user' => \Auth::user()->only('id', 'name')];
         $response = $this->postJson($loginRoute, $credentials);
         $response->assertOk();
         $response->assertJsonPath('two_factor', false);
         $authToken = $response->headers->get('auth-token');
         expect($authToken)->toBeString()->not->toBeEmpty();
         $response->assertJsonPath('auth_token', $authToken);
+        $response->assertExactJsonStructure(['two_factor', 'auth_token', 'user' => ['id', 'name']]);
 
         $this->withToken($authToken);
 

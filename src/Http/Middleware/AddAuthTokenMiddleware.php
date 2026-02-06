@@ -9,6 +9,9 @@ use Symfony\Component\HttpFoundation\Response;
 
 class AddAuthTokenMiddleware
 {
+    /** @var null | \Closure(array):array */
+    public static ?\Closure $addDataToResponse = null;
+
     public function handle(Request $request, \Closure $next): Response
     {
         $response = $next($request);
@@ -22,7 +25,8 @@ class AddAuthTokenMiddleware
             if ($response instanceof JsonResponse) {
                 $data = $response->getData(true);
                 $data === '' and $data = [];
-                $response->setData($data + ['auth_token' => $token]);
+                static::$addDataToResponse ??= fn(array $data): array => $data;
+                $response->setData((static::$addDataToResponse)($data + ['auth_token' => $token]));
                 $response->getStatusCode() === 204 /*NoContent*/ and $response->setStatusCode(200);
             }
         }
