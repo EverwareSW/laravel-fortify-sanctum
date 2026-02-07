@@ -70,7 +70,7 @@ you can do so by setting `AddAuthTokenMiddleware::$addDataToResponse` in a servi
 or in `bootstrap/app.php`s `withMiddleware()` method. E.g. adding user data:
 ```php
 AddAuthTokenMiddleware::$addDataToResponse = fn(array $data): array => $data + [
-    'user' => \Auth::guard('fortify-sanctum')->user()?->only('id', 'name', 'ignored_log_descriptions'),
+    'user' => \Auth::guard('fortify-sanctum')->user()?->only('id', 'name'),
 ];
 ```
 
