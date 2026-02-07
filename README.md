@@ -64,6 +64,15 @@ When not making use of StartTemporarySessionMiddleware; the password confirmatio
 When making use of **StartTemporarySessionMiddleware**; the same 'Temporary-Session-ID' HTTP header functionality as described above 
 is used with requests to `/user/confirm-password` and the response header value should be passed to whatever consecutive password-confirm-required route.  
 Again, note the regeneration mentioned above.
+## Add data to token response
+If you want to add data to the authenticated access token response, 
+you can do so by setting `AddAuthTokenMiddleware::$addDataToResponse` in a service providers register or boot method, 
+or in `bootstrap/app.php`s `withMiddleware()` method. E.g. adding user data:
+```php
+AddAuthTokenMiddleware::$addDataToResponse = fn(array $data): array => $data + [
+    'user' => \Auth::guard('fortify-sanctum')->user()?->only('id', 'name', 'ignored_log_descriptions'),
+];
+```
 
 ## Bam! You're done, no custom routes required.
 
