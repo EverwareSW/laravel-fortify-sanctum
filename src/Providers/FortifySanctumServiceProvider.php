@@ -35,8 +35,8 @@ class FortifySanctumServiceProvider extends ServiceProvider
          */
 
         /** {@see AuthenticatedSessionController::store()}. */
-        $this->app->bind(LoginRequest::class, function() {
-            return new class extends LoginRequest {
+        $this->app->bind(LoginRequest::class, function($app, $params = []) {
+            return new class(...$params) extends LoginRequest {
                 public function rules() {
                     /**
                      * See above `Auth::extend()` and

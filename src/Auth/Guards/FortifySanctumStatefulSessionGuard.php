@@ -80,9 +80,11 @@ class FortifySanctumStatefulSessionGuard extends SessionGuard
         // LoginRequest (AuthenticatedSessionController > AttemptToAuthenticate)
         // Request (RegisteredUserController > CreatesNewUsers)
         // TwoFactorLoginRequest (TwoFactorAuthenticatedSessionController
-        $token = $user->createToken($this->request->device_name)->plainTextToken;
+        $token = $user->createToken($this->request->device_name);
+        $user->withAccessToken($token->accessToken);
+
         /** {@see StartTemporarySessionMiddleware::addCookieToResponse()}. */
-        $this->session->put('auth-token', $token);
+        $this->session->put('auth-token', $token->plainTextToken);
 
         $this->fireLoginEvent($user, $remember);
 
